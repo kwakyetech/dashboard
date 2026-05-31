@@ -43,6 +43,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [profileSuccess, setProfileSuccess] = useState<string | null>(null);
   const [profileUpdating, setProfileUpdating] = useState(false);
 
+  // Billing states
+  const [billingTab, setBillingTab] = useState<'profile' | 'billing'>('profile');
+  const [billingLoading, setBillingLoading] = useState(false);
+  const [billingError, setBillingError] = useState<string | null>(null);
+
   const openProfileModal = () => {
     setProfileName(user?.name || '');
     setProfileEmail(user?.email || '');
@@ -50,7 +55,32 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     setProfileFirmName(user?.firmName || '');
     setProfileError(null);
     setProfileSuccess(null);
+    setBillingTab('profile');
+    setBillingError(null);
     setProfileOpen(true);
+  };
+
+  const handleUpgrade = async (plan: 'pro' | 'enterprise') => {
+    setBillingLoading(true);
+    setBillingError(null);
+    try {
+      const res = await fetch('/api/billing/initialize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan }),
+      });
+      const data = await res.json();
+      if (res.ok && data.authorizationUrl) {
+        window.location.href = data.authorizationUrl;
+      } else {
+        setBillingError(data.error || 'Failed to redirect to payment gateway.');
+      }
+    } catch (err) {
+      console.error(err);
+      setBillingError('Connection error contacting billing server.');
+    } finally {
+      setBillingLoading(false);
+    }
   };
 
   const handleProfileSubmit = async (e: React.FormEvent) => {
@@ -540,101 +570,221 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </button>
             </div>
 
-            {profileError && (
-              <div className="p-3 rounded-lg bg-red-950/40 border border-red-800/60 text-red-400 text-xs flex items-center gap-2">
-                <AlertCircle className="w-4.5 h-4.5 shrink-0" />
-                <span>{profileError}</span>
+            {user?.role === 'ADMIN' && (
+              <div className="flex border-b border-slate-800 pb-1 gap-4">
+                <button
+                  type="button"
+                  onClick={() => setBillingTab('profile')}
+                  className={`pb-2 text-xs font-semibold border-b-2 transition-all ${
+                    billingTab === 'profile'
+                      ? 'border-emerald-500 text-emerald-400'
+                      : 'border-transparent text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  Profile Details
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setBillingTab('billing')}
+                  className={`pb-2 text-xs font-semibold border-b-2 transition-all ${
+                    billingTab === 'billing'
+                      ? 'border-emerald-500 text-emerald-400'
+                      : 'border-transparent text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  Billing & Subscription
+                </button>
               </div>
             )}
 
-            {profileSuccess && (
-              <div className="p-3 rounded-lg bg-emerald-950/40 border border-emerald-800/60 text-emerald-400 text-xs flex items-center gap-2">
-                <Check className="w-4.5 h-4.5 shrink-0" />
-                <span>{profileSuccess}</span>
-              </div>
-            )}
+            {billingTab === 'profile' ? (
+              <form onSubmit={handleProfileSubmit} className="space-y-4">
+                {profileError && (
+                  <div className="p-3 rounded-lg bg-red-950/40 border border-red-800/60 text-red-400 text-xs flex items-center gap-2">
+                    <AlertCircle className="w-4.5 h-4.5 shrink-0" />
+                    <span>{profileError}</span>
+                  </div>
+                )}
 
-            <form onSubmit={handleProfileSubmit} className="space-y-4">
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  value={profileName}
-                  onChange={(e) => setProfileName(e.target.value)}
-                  placeholder="Your Full Name"
-                  className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 focus:border-emerald-500/50 rounded-xl text-xs text-slate-200 outline-none placeholder-slate-650"
-                />
-              </div>
+                {profileSuccess && (
+                  <div className="p-3 rounded-lg bg-emerald-950/40 border border-emerald-800/60 text-emerald-400 text-xs flex items-center gap-2">
+                    <Check className="w-4.5 h-4.5 shrink-0" />
+                    <span>{profileSuccess}</span>
+                  </div>
+                )}
 
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-                  Email Address *
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={profileEmail}
-                  onChange={(e) => setProfileEmail(e.target.value)}
-                  placeholder="your.email@firm.com"
-                  className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 focus:border-emerald-500/50 rounded-xl text-xs text-slate-200 outline-none placeholder-slate-650"
-                />
-              </div>
-
-              {user?.role === 'ADMIN' && (
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-                    Accounting Firm Name *
+                    Full Name
                   </label>
                   <input
                     type="text"
-                    required
-                    value={profileFirmName}
-                    onChange={(e) => setProfileFirmName(e.target.value)}
-                    placeholder="Accounting Firm Name"
+                    value={profileName}
+                    onChange={(e) => setProfileName(e.target.value)}
+                    placeholder="Your Full Name"
                     className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 focus:border-emerald-500/50 rounded-xl text-xs text-slate-200 outline-none placeholder-slate-650"
                   />
                 </div>
-              )}
 
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-                  New Password (leave blank to keep current)
-                </label>
-                <input
-                  type="password"
-                  value={profilePassword}
-                  onChange={(e) => setProfilePassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 focus:border-emerald-500/50 rounded-xl text-xs text-slate-200 outline-none placeholder-slate-650"
-                />
-              </div>
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                    Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={profileEmail}
+                    onChange={(e) => setProfileEmail(e.target.value)}
+                    placeholder="your.email@firm.com"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 focus:border-emerald-500/50 rounded-xl text-xs text-slate-200 outline-none placeholder-slate-650"
+                  />
+                </div>
 
-              <div className="flex gap-3 justify-end border-t border-slate-800 pt-4 mt-2">
-                <button
-                  type="button"
-                  onClick={() => setProfileOpen(false)}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-750 text-slate-300 font-semibold rounded-xl text-xs transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={profileUpdating}
-                  className="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold rounded-xl text-xs shadow-md shadow-emerald-500/10 active:scale-[0.98] transition-all flex items-center gap-1.5 disabled:opacity-50 disabled:scale-100"
-                >
-                  {profileUpdating ? (
-                    <>
-                      <div className="w-3.5 h-3.5 border-t border-slate-950 rounded-full animate-spin" />
-                      <span>Saving...</span>
-                    </>
-                  ) : (
-                    <span>Save Changes</span>
+                {user?.role === 'ADMIN' && (
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                      Accounting Firm Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={profileFirmName}
+                      onChange={(e) => setProfileFirmName(e.target.value)}
+                      placeholder="Accounting Firm Name"
+                      className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 focus:border-emerald-500/50 rounded-xl text-xs text-slate-200 outline-none placeholder-slate-650"
+                    />
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                    New Password (leave blank to keep current)
+                  </label>
+                  <input
+                    type="password"
+                    value={profilePassword}
+                    onChange={(e) => setProfilePassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 focus:border-emerald-500/50 rounded-xl text-xs text-slate-200 outline-none placeholder-slate-650"
+                  />
+                </div>
+
+                <div className="flex gap-3 justify-end border-t border-slate-800 pt-4 mt-2">
+                  <button
+                    type="button"
+                    onClick={() => setProfileOpen(false)}
+                    className="px-4 py-2 bg-slate-800 hover:bg-slate-750 text-slate-300 font-semibold rounded-xl text-xs transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={profileUpdating}
+                    className="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold rounded-xl text-xs shadow-md shadow-emerald-500/10 active:scale-[0.98] transition-all flex items-center gap-1.5 disabled:opacity-50 disabled:scale-100"
+                  >
+                    {profileUpdating ? (
+                      <>
+                        <div className="w-3.5 h-3.5 border-t border-slate-950 rounded-full animate-spin" />
+                        <span>Saving...</span>
+                      </>
+                    ) : (
+                      <span>Save Changes</span>
+                    )}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <div className="space-y-4">
+                {billingError && (
+                  <div className="p-3 rounded-lg bg-red-950/40 border border-red-800/60 text-red-400 text-xs flex items-center gap-2">
+                    <AlertCircle className="w-4.5 h-4.5 shrink-0" />
+                    <span>{billingError}</span>
+                  </div>
+                )}
+
+                <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800 space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Current Plan</span>
+                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                      user?.subscriptionPlan === 'enterprise'
+                        ? 'bg-purple-500/10 text-purple-400 border border-purple-500/25'
+                        : user?.subscriptionPlan === 'pro'
+                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/25'
+                        : 'bg-slate-800 text-slate-400 border border-slate-700'
+                    }`}>
+                      {user?.subscriptionPlan || 'free'}
+                    </span>
+                  </div>
+                  {user?.subscriptionPlan && user?.subscriptionPlan !== 'free' && user?.subscriptionExpiresAt && (
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-slate-500">Expires on:</span>
+                      <span className="text-slate-350 font-medium">
+                        {new Date(user.subscriptionExpiresAt).toLocaleDateString(undefined, {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })}
+                      </span>
+                    </div>
                   )}
-                </button>
+                </div>
+
+                <div className="space-y-3 pt-2">
+                  <h3 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-1">Available Plans</h3>
+
+                  {/* Pro Card */}
+                  <div className="p-4 rounded-xl bg-slate-950/40 border border-slate-800 flex justify-between items-center gap-4 hover:border-emerald-500/30 transition-all">
+                    <div className="space-y-0.5">
+                      <h4 className="text-xs font-bold text-slate-200">Pro Plan</h4>
+                      <p className="text-[10px] text-slate-500 max-w-[200px]">GHS payroll calculations, reports export, tax filings.</p>
+                      <p className="text-xs font-bold text-emerald-400 mt-1">GH₵150 <span className="text-[10px] text-slate-500 font-normal">/ month</span></p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleUpgrade('pro')}
+                      disabled={billingLoading || user?.subscriptionPlan === 'pro'}
+                      className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold disabled:opacity-40 disabled:hover:bg-emerald-500 transition-all shrink-0"
+                    >
+                      {user?.subscriptionPlan === 'pro' ? 'Current' : 'Upgrade'}
+                    </button>
+                  </div>
+
+                  {/* Enterprise Card */}
+                  <div className="p-4 rounded-xl bg-slate-950/40 border border-slate-800 flex justify-between items-center gap-4 hover:border-purple-500/30 transition-all">
+                    <div className="space-y-0.5">
+                      <h4 className="text-xs font-bold text-slate-200">Enterprise Plan</h4>
+                      <p className="text-[10px] text-slate-500 max-w-[200px]">Unlimited client company logs and AI report summaries.</p>
+                      <p className="text-xs font-bold text-purple-400 mt-1">GH₵390 <span className="text-[10px] text-slate-500 font-normal">/ month</span></p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleUpgrade('enterprise')}
+                      disabled={billingLoading || user?.subscriptionPlan === 'enterprise'}
+                      className="px-4 py-2 rounded-xl bg-purple-500 hover:bg-purple-400 text-slate-950 text-xs font-bold disabled:opacity-40 disabled:hover:bg-purple-500 transition-all shrink-0"
+                    >
+                      {user?.subscriptionPlan === 'enterprise' ? 'Current' : 'Upgrade'}
+                    </button>
+                  </div>
+                </div>
+
+                {billingLoading && (
+                  <div className="flex items-center justify-center gap-2 text-xs text-slate-400 py-1">
+                    <div className="w-4.5 h-4.5 border-t border-emerald-500 rounded-full animate-spin" />
+                    <span>Connecting to Paystack...</span>
+                  </div>
+                )}
+
+                <div className="flex justify-end border-t border-slate-800 pt-4 mt-2">
+                  <button
+                    type="button"
+                    onClick={() => setProfileOpen(false)}
+                    className="px-4 py-2 bg-slate-800 hover:bg-slate-750 text-slate-300 font-semibold rounded-xl text-xs transition-colors"
+                  >
+                    Close
+                  </button>
+                </div>
               </div>
-            </form>
+            )}
           </div>
         </div>
       )}

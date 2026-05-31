@@ -10,6 +10,8 @@ export interface User {
   role: string;
   firmId: string;
   firmName: string;
+  subscriptionPlan?: string;
+  subscriptionExpiresAt?: string | null;
 }
 
 interface AuthContextType {

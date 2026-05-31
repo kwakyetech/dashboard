@@ -54,6 +54,8 @@ export async function POST(req: NextRequest) {
         role: user.role,
         firmId: user.firmId,
         firmName: user.firm.name,
+        subscriptionPlan: user.firm.subscriptionPlan,
+        subscriptionExpiresAt: user.firm.subscriptionExpiresAt ? user.firm.subscriptionExpiresAt.toISOString() : null,
       }
     }, { status: 200 });
 

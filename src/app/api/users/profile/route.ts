@@ -73,6 +73,8 @@ export async function PUT(req: NextRequest) {
         role: updatedUser.role,
         firmId: updatedUser.firmId,
         firmName: updatedUser.firm.name,
+        subscriptionPlan: updatedUser.firm.subscriptionPlan,
+        subscriptionExpiresAt: updatedUser.firm.subscriptionExpiresAt ? updatedUser.firm.subscriptionExpiresAt.toISOString() : null,
       }
     }, { status: 200 });
 

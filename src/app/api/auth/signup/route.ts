@@ -88,6 +88,8 @@ export async function POST(req: NextRequest) {
         role: result.user.role,
         firmId: result.user.firmId,
         firmName: result.firm.name,
+        subscriptionPlan: result.firm.subscriptionPlan,
+        subscriptionExpiresAt: result.firm.subscriptionExpiresAt ? result.firm.subscriptionExpiresAt.toISOString() : null,
       }
     }, { status: 201 });
 
