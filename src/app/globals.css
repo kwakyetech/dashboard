@@ -25,3 +25,68 @@ body {
     text-wrap: balance;
   }
 }
+
+/* Premium Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #020617;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #10b981;
+}
+
+/* Spinner reverse animation */
+@keyframes spin-reverse {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+.animate-spin-reverse {
+  animation: spin-reverse 1s linear infinite;
+}
+
+/* Print Stylesheet */
+@media print {
+  body {
+    background-color: white !important;
+    color: black !important;
+  }
+  
+  aside,
+  header,
+  nav,
+  button,
+  footer,
+  .print\:hidden {
+    display: none !important;
+  }
+  
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  .print\:block {
+    display: block !important;
+  }
+  
+  .print\:w-full {
+    width: 100% !important;
+  }
+  
+  /* Reset background colors on printing for tables/insights */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+

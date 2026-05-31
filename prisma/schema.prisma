@@ -1,0 +1,162 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Core authentication & tenancy
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String   // hashed
+  name      String?
+  role      String   @default("ACCOUNTANT") // ADMIN, ACCOUNTANT, CLIENT
+  firmId    String   // which accounting firm owns this user
+  firm      Firm     @relation(fields: [firmId], references: [id])
+  companies Company[] @relation("UserCompanies")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Firm {
+  id                    String    @id @default(cuid())
+  name                  String
+  email                 String    @unique
+  subscriptionPlan      String    @default("free") // free, pro, enterprise
+  subscriptionExpiresAt DateTime?
+  users                 User[]
+  companies             Company[]
+  createdAt             DateTime  @default(now())
+}
+
+// Client data (tenant's clients)
+model Company {
+  id        String        @id @default(cuid())
+  name      String
+  taxId     String?
+  firmId    String
+  firm      Firm          @relation(fields: [firmId], references: [id])
+  users     User[]        @relation("UserCompanies")
+  transactions Transaction[]
+  reports   Report[]
+  budgets   Budget[]
+  employees Employee[]
+  payruns   Payrun[]
+  currency  String        @default("GHS")
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+// Financial data
+model Transaction {
+  id                  String   @id @default(cuid())
+  companyId           String
+  company             Company  @relation(fields: [companyId], references: [id])
+  date                DateTime
+  description         String
+  amount              Decimal  // amount in company base currency
+  originalAmount      Decimal? // amount in original transaction currency
+  currency            String   @default("GHS") // original transaction currency
+  exchangeRate        Decimal? // rate used to convert to base currency (amount = originalAmount * exchangeRate)
+  type                String   // "income", "expense", "transfer"
+  category            String   // "consulting", "travel", "supplies", etc.
+  categoryAiGenerated Boolean  @default(false)
+  notes               String?
+  uploadBatchId       String?  // group transactions from same CSV
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  
+  @@index([companyId])
+  @@index([date])
+  @@index([category])
+}
+
+// Generated reports (cached)
+model Report {
+  id          String   @id @default(cuid())
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id])
+  type        String   // "income_statement", "balance_sheet", "cash_flow", "custom"
+  startDate   DateTime
+  endDate     DateTime
+  content     String   // store the generated report data (JSON stringified)
+  summary     String   // AI-generated narrative
+  generatedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([companyId])
+  @@index([type])
+}
+
+
+
+model Budget {
+  id        String   @id @default(cuid())
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id])
+  category  String
+  amount    Decimal
+  year      Int
+  month     Int
+
+  @@unique([companyId, category, year, month])
+}
+
+model Employee {
+  id          String   @id @default(cuid())
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id])
+  name        String
+  email       String?
+  role        String
+  baseSalary  Decimal
+  allowances  Decimal  @default(0)
+  ssnitNo     String?
+  tin         String?
+  payruns     PayrunEntry[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([companyId])
+}
+
+model Payrun {
+  id          String   @id @default(cuid())
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id])
+  year        Int
+  month       Int
+  status      String
+  totalBase   Decimal
+  totalTax    Decimal
+  totalSsnit  Decimal
+  totalNet    Decimal
+  entries     PayrunEntry[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([companyId, year, month])
+}
+
+model PayrunEntry {
+  id          String   @id @default(cuid())
+  payrunId    String
+  payrun      Payrun   @relation(fields: [payrunId], references: [id], onDelete: Cascade)
+  employeeId  String
+  employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  baseSalary  Decimal
+  allowances  Decimal
+  ssnit       Decimal
+  tax         Decimal
+  netPay      Decimal
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([payrunId, employeeId])
+}
+
+
