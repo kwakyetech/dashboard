@@ -1,5 +1,5 @@
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
-const MODEL_NAME = 'claude-3-5-sonnet-20241022'; // or 'claude-3-5-sonnet-latest'
+const MODEL_NAME = process.env.CLAUDE_MODEL || 'claude-3-5-sonnet-20241022';
 
 export interface CategoryResult {
   description: string;
