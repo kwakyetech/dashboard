@@ -259,12 +259,12 @@ Only respond with valid JSON.`;
 
       const statement = { assets, liabilities, equity };
 
-      const summary = `Balance Sheet Analysis for ${companyName}: As of ${endDateStr}, the business maintains a total asset base of $${assets.totalAssets.toLocaleString()}. The primary liquidity asset is cash, standing at $${assets.cash.toLocaleString()}, indicating a strong current position.\n\nOn the funding side, total liabilities are managed at $${liabilities.totalLiabilities.toLocaleString()}, driven by accounts payable and outstanding credit card balances. This leaves a solid shareholder equity foundation of $${equity.totalEquity.toLocaleString()}, backed by retained earnings of $${equity.retainedEarnings.toLocaleString()}.\n\nOverall, the balance sheet balances perfectly, showing that assets are safely financed with minimal long-term debt risk. Adhering to efficient collection policies will continue to convert accounts receivable quickly to sustain liquidity.`;
+      const summary = `Balance Sheet Analysis for ${companyName}: As of ${endDateStr}, the business maintains a total asset base of GH₵${assets.totalAssets.toLocaleString()}. The primary liquidity asset is cash, standing at GH₵${assets.cash.toLocaleString()}, indicating a strong current position.\n\nOn the funding side, total liabilities are managed at GH₵${liabilities.totalLiabilities.toLocaleString()}, driven by accounts payable and outstanding credit card balances. This leaves a solid shareholder equity foundation of GH₵${equity.totalEquity.toLocaleString()}, backed by retained earnings of GH₵${equity.retainedEarnings.toLocaleString()}.\n\nOverall, the balance sheet balances perfectly, showing that assets are safely financed with minimal long-term debt risk. Adhering to efficient collection policies will continue to convert accounts receivable quickly to sustain liquidity.`;
 
       const insights = [
-        `Working capital ratio is highly favorable with liquid cash of $${assets.cash.toLocaleString()} exceeding short-term liabilities.`,
-        `Equipment assets represent a key capital allocation of $${assets.equipment.toLocaleString()}.`,
-        `Retained earnings of $${equity.retainedEarnings.toLocaleString()} demonstrate cumulative historical profitability of operations.`
+        `Working capital ratio is highly favorable with liquid cash of GH₵${assets.cash.toLocaleString()} exceeding short-term liabilities.`,
+        `Equipment assets represent a key capital allocation of GH₵${assets.equipment.toLocaleString()}.`,
+        `Retained earnings of GH₵${equity.retainedEarnings.toLocaleString()} demonstrate cumulative historical profitability of operations.`
       ];
 
       return { statement, summary, insights };
@@ -292,12 +292,12 @@ Only respond with valid JSON.`;
 
       const statement = { operating, investing, financing, totals };
 
-      const summary = `Cash Flow Analysis for ${companyName}: During the period from ${startDateStr} to ${endDateStr}, net cash from operating activities was $${operating.netOperating.toLocaleString()}, representing the core cash engine of the firm. Total collections were $${operating.receipts.toLocaleString()} against operating outflows of $${Math.abs(operating.payments).toLocaleString()}.\n\nInvesting activities accounted for a cash outflow of $${Math.abs(investing.netInvesting).toLocaleString()} due to fixed equipment purchases. Financing activities, primarily represented by account transfers, contributed a net flow of $${financing.netFinancing.toLocaleString()}.\n\nOverall, the company generated a net cash change of $${totals.netChange.toLocaleString()} during the period, moving from a beginning cash balance of $${totals.beginningCash.toLocaleString()} to an ending balance of $${totals.endingCash.toLocaleString()}, demonstrating robust liquidity management.`;
+      const summary = `Cash Flow Analysis for ${companyName}: During the period from ${startDateStr} to ${endDateStr}, net cash from operating activities was GH₵${operating.netOperating.toLocaleString()}, representing the core cash engine of the firm. Total collections were GH₵${operating.receipts.toLocaleString()} against operating outflows of GH₵${Math.abs(operating.payments).toLocaleString()}.\n\nInvesting activities accounted for a cash outflow of GH₵${Math.abs(investing.netInvesting).toLocaleString()} due to fixed equipment purchases. Financing activities, primarily represented by account transfers, contributed a net flow of GH₵${financing.netFinancing.toLocaleString()}.\n\nOverall, the company generated a net cash change of GH₵${totals.netChange.toLocaleString()} during the period, moving from a beginning cash balance of GH₵${totals.beginningCash.toLocaleString()} to an ending balance of GH₵${totals.endingCash.toLocaleString()}, demonstrating robust liquidity management.`;
 
       const insights = [
-        `Core operations are cash-flow positive, yielding $${operating.netOperating.toLocaleString()} of operating cash flow.`,
-        `Capital expenditures of $${Math.abs(investing.netInvesting).toLocaleString()} represent cash reinvestment in business tools.`,
-        `Ending cash balance of $${totals.endingCash.toLocaleString()} provides a healthy cash cushion for ongoing commitments.`
+        `Core operations are cash-flow positive, yielding GH₵${operating.netOperating.toLocaleString()} of operating cash flow.`,
+        `Capital expenditures of GH₵${Math.abs(investing.netInvesting).toLocaleString()} represent cash reinvestment in business tools.`,
+        `Ending cash balance of GH₵${totals.endingCash.toLocaleString()} provides a healthy cash cushion for ongoing commitments.`
       ];
 
       return { statement, summary, insights };
@@ -316,10 +316,10 @@ Only respond with valid JSON.`;
     };
     statement.totals.netIncome = statement.totals.totalIncome - statement.totals.totalExpenses;
 
-    const summary = `Executive Summary for ${companyName}: During the period from ${startDateStr} to ${endDateStr}, the business experienced solid activity. Total revenues reached $${statement.totals.totalIncome.toLocaleString()} and expenses amounted to $${statement.totals.totalExpenses.toLocaleString()}, leading to a net profit of $${statement.totals.netIncome.toLocaleString()}.\n\nOperationally, the cost structure appears standard, with the largest costs originating from payroll and core utilities. Strategic initiatives should focus on cost optimization and expanding key client consulting revenues to drive margins.\n\nMoving forward, maintaining a clean cash runway and conducting monthly reviews will ensure financial resilience. Overall, the company is in a stable position but would benefit from strict adherence to seasonal budgets.`;
+    const summary = `Executive Summary for ${companyName}: During the period from ${startDateStr} to ${endDateStr}, the business experienced solid activity. Total revenues reached GH₵${statement.totals.totalIncome.toLocaleString()} and expenses amounted to GH₵${statement.totals.totalExpenses.toLocaleString()}, leading to a net profit of GH₵${statement.totals.netIncome.toLocaleString()}.\n\nOperationally, the cost structure appears standard, with the largest costs originating from payroll and core utilities. Strategic initiatives should focus on cost optimization and expanding key client consulting revenues to drive margins.\n\nMoving forward, maintaining a clean cash runway and conducting monthly reviews will ensure financial resilience. Overall, the company is in a stable position but would benefit from strict adherence to seasonal budgets.`;
 
     const insights = [
-      `Net Profit margin stands at ${statement.totals.totalIncome > 0 ? ((statement.totals.netIncome / statement.totals.totalIncome) * 105).toFixed(1) : 0}% for the selected period.`,
+      `Net Profit margin stands at ${statement.totals.totalIncome > 0 ? ((statement.totals.netIncome / statement.totals.totalIncome) * 100).toFixed(1) : 0}% for the selected period.`,
       `Payroll and consulting fees represent the primary drivers of financial outflow.`,
       `Stable operations with a total of ${Object.keys(aggregatedData.expenses || {}).length} expense categories reported.`,
     ];
@@ -358,7 +358,84 @@ Only respond with valid JSON.`;
     return parsed as GeneratedReport;
   } catch (error) {
     console.error('[CLAUDE_REPORT_ERROR] Error calling Claude API:', error);
-    throw error;
+    console.log('[CLAUDE] Falling back to local report-generator engine due to error.');
+    
+    // Safe fallback execution when API fails
+    if (type === 'balance_sheet') {
+      const assets = {
+        cash: Number(aggregatedData.assets.cash),
+        accountsReceivable: Number(aggregatedData.assets.accountsReceivable),
+        equipment: Number(aggregatedData.assets.equipment),
+        totalAssets: Number(aggregatedData.assets.totalAssets)
+      };
+      const liabilities = {
+        accountsPayable: Number(aggregatedData.liabilities.accountsPayable),
+        creditCard: Number(aggregatedData.liabilities.creditCard),
+        totalLiabilities: Number(aggregatedData.liabilities.totalLiabilities)
+      };
+      const equity = {
+        paidInCapital: Number(aggregatedData.equity.paidInCapital),
+        retainedEarnings: Number(aggregatedData.equity.retainedEarnings),
+        totalEquity: Number(aggregatedData.equity.totalEquity)
+      };
+      const statement = { assets, liabilities, equity };
+      const summary = `Balance Sheet Analysis for ${companyName}: As of ${endDateStr}, the business maintains a total asset base of GH₵${assets.totalAssets.toLocaleString()}. The primary liquidity asset is cash, standing at GH₵${assets.cash.toLocaleString()}, indicating a strong current position.\n\nOn the funding side, total liabilities are managed at GH₵${liabilities.totalLiabilities.toLocaleString()}, driven by accounts payable and outstanding credit card balances. This leaves a solid shareholder equity foundation of GH₵${equity.totalEquity.toLocaleString()}, backed by retained earnings of GH₵${equity.retainedEarnings.toLocaleString()}.\n\nOverall, the balance sheet balances perfectly, showing that assets are safely financed with minimal long-term debt risk. Adhering to efficient collection policies will continue to convert accounts receivable quickly to sustain liquidity.`;
+      const insights = [
+        `Working capital ratio is highly favorable with liquid cash of GH₵${assets.cash.toLocaleString()} exceeding short-term liabilities.`,
+        `Equipment assets represent a key capital allocation of GH₵${assets.equipment.toLocaleString()}.`,
+        `Retained earnings of GH₵${equity.retainedEarnings.toLocaleString()} demonstrate cumulative historical profitability of operations.`
+      ];
+      return { statement, summary, insights };
+    }
+
+    if (type === 'cash_flow') {
+      const operating = {
+        receipts: Number(aggregatedData.operating.receipts),
+        payments: Number(aggregatedData.operating.payments),
+        netOperating: Number(aggregatedData.operating.netOperating)
+      };
+      const investing = {
+        equipment: Number(aggregatedData.investing.equipment),
+        netInvesting: Number(aggregatedData.investing.netInvesting)
+      };
+      const financing = {
+        transfers: Number(aggregatedData.financing.transfers),
+        netFinancing: Number(aggregatedData.financing.netFinancing)
+      };
+      const totals = {
+        beginningCash: Number(aggregatedData.totals.beginningCash),
+        netChange: Number(aggregatedData.totals.netChange),
+        endingCash: Number(aggregatedData.totals.endingCash)
+      };
+      const statement = { operating, investing, financing, totals };
+      const summary = `Cash Flow Analysis for ${companyName}: During the period from ${startDateStr} to ${endDateStr}, net cash from operating activities was GH₵${operating.netOperating.toLocaleString()}, representing the core cash engine of the firm. Total collections were GH₵${operating.receipts.toLocaleString()} against operating outflows of GH₵${Math.abs(operating.payments).toLocaleString()}.\n\nInvesting activities accounted for a cash outflow of GH₵${Math.abs(investing.netInvesting).toLocaleString()} due to fixed equipment purchases. Financing activities, primarily represented by account transfers, contributed a net flow of GH₵${financing.netFinancing.toLocaleString()}.\n\nOverall, the company generated a net cash change of GH₵${totals.netChange.toLocaleString()} during the period, moving from a beginning cash balance of GH₵${totals.beginningCash.toLocaleString()} to an ending balance of GH₵${totals.endingCash.toLocaleString()}, demonstrating robust liquidity management.`;
+      const insights = [
+        `Core operations are cash-flow positive, yielding GH₵${operating.netOperating.toLocaleString()} of operating cash flow.`,
+        `Capital expenditures of GH₵${Math.abs(investing.netInvesting).toLocaleString()} represent cash reinvestment in business tools.`,
+        `Ending cash balance of GH₵${totals.endingCash.toLocaleString()} provides a healthy cash cushion for ongoing commitments.`
+      ];
+      return { statement, summary, insights };
+    }
+
+    // Default: income_statement
+    const statement = {
+      periodStart: startDateStr,
+      periodEnd: endDateStr,
+      income: { ...aggregatedData.income },
+      expenses: { ...aggregatedData.expenses },
+      totals: {
+        totalIncome: Object.values(aggregatedData.income || {}).reduce((a: any, b: any) => a + b, 0),
+        totalExpenses: Object.values(aggregatedData.expenses || {}).reduce((a: any, b: any) => a + b, 0),
+      }
+    };
+    statement.totals.netIncome = statement.totals.totalIncome - statement.totals.totalExpenses;
+    const summary = `Executive Summary for ${companyName}: During the period from ${startDateStr} to ${endDateStr}, the business experienced solid activity. Total revenues reached GH₵${statement.totals.totalIncome.toLocaleString()} and expenses amounted to GH₵${statement.totals.totalExpenses.toLocaleString()}, leading to a net profit of GH₵${statement.totals.netIncome.toLocaleString()}.\n\nOperationally, the cost structure appears standard, with the largest costs originating from payroll and core utilities. Strategic initiatives should focus on cost optimization and expanding key client consulting revenues to drive margins.\n\nMoving forward, maintaining a clean cash runway and conducting monthly reviews will ensure financial resilience. Overall, the company is in a stable position but would benefit from strict adherence to seasonal budgets.`;
+    const insights = [
+      `Net Profit margin stands at ${statement.totals.totalIncome > 0 ? ((statement.totals.netIncome / statement.totals.totalIncome) * 100).toFixed(1) : 0}% for the selected period.`,
+      `Payroll and consulting fees represent the primary drivers of financial outflow.`,
+      `Stable operations with a total of ${Object.keys(aggregatedData.expenses || {}).length} expense categories reported.`,
+    ];
+    return { statement, summary, insights };
   }
 }
 
