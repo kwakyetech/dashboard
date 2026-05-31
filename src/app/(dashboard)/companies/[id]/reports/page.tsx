@@ -162,6 +162,7 @@ export default function ReportsPage() {
     if (type === 'income_statement') return 'Income Statement';
     if (type === 'balance_sheet') return 'Balance Sheet';
     if (type === 'cash_flow') return 'Cash Flow';
+    if (type === 'shareholders_equity') return "Statement of Shareholders' Equity";
     return 'Financial Report';
   };
 
@@ -207,6 +208,7 @@ export default function ReportsPage() {
                     <option value="income_statement">Income Statement</option>
                     <option value="balance_sheet">Balance Sheet</option>
                     <option value="cash_flow">Cash Flow</option>
+                    <option value="shareholders_equity">Statement of Shareholders' Equity</option>
                   </select>
                 </div>
 
@@ -580,6 +582,72 @@ export default function ReportsPage() {
                                   {formatCurrency(statement.totals?.endingCash || 0, activeCompany?.currency || 'GHS')}
                                 </span>
                               </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* STATEMENT OF SHAREHOLDERS' EQUITY */}
+                        {selectedReport.type === 'shareholders_equity' && (
+                          <div className="space-y-6">
+                            {/* Beginning Balances */}
+                            <div>
+                              <h4 className="text-xs font-bold uppercase tracking-widest text-slate-400 print:text-slate-500 border-b border-slate-850 print:border-slate-200 pb-2 mb-3">Beginning Balances</h4>
+                              <div className="space-y-2.5">
+                                <div className="flex justify-between text-sm">
+                                  <span className="text-slate-400 print:text-slate-600">Paid-in Capital</span>
+                                  <span className="font-semibold text-slate-200 print:text-black">{formatCurrency(statement.beginning?.paidInCapital || 0, activeCompany?.currency || 'GHS')}</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                  <span className="text-slate-400 print:text-slate-600">Retained Earnings</span>
+                                  <span className="font-semibold text-slate-200 print:text-black">{formatCurrency(statement.beginning?.retainedEarnings || 0, activeCompany?.currency || 'GHS')}</span>
+                                </div>
+                                <div className="flex justify-between text-sm font-bold border-t border-slate-800/60 print:border-slate-200 pt-2.5 mt-2">
+                                  <span className="text-slate-300 print:text-black">Total Beginning Equity</span>
+                                  <span className="text-slate-100 print:text-black">{formatCurrency(statement.beginning?.totalEquity || 0, activeCompany?.currency || 'GHS')}</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Changes in Equity */}
+                            <div>
+                              <h4 className="text-xs font-bold uppercase tracking-widest text-slate-400 print:text-slate-500 border-b border-slate-850 print:border-slate-200 pb-2 mb-3">Changes in Equity (Period Activity)</h4>
+                              <div className="space-y-2.5">
+                                <div className="flex justify-between text-sm">
+                                  <span className="text-slate-400 print:text-slate-600">Net Income / (Loss)</span>
+                                  <span className={`font-semibold ${Number(statement.changes?.netIncome || 0) >= 0 ? 'text-emerald-400 print:text-emerald-700' : 'text-red-400 print:text-red-700'}`}>{formatCurrency(statement.changes?.netIncome || 0, activeCompany?.currency || 'GHS')}</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                  <span className="text-slate-400 print:text-slate-600">Capital Contributions</span>
+                                  <span className="font-semibold text-emerald-400 print:text-emerald-700">{formatCurrency(statement.changes?.contributions || 0, activeCompany?.currency || 'GHS')}</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                  <span className="text-slate-400 print:text-slate-600">Distributions / Dividends Paid</span>
+                                  <span className="font-semibold text-red-400 print:text-red-700">({formatCurrency(statement.changes?.distributions || 0, activeCompany?.currency || 'GHS')})</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Ending Balances */}
+                            <div>
+                              <h4 className="text-xs font-bold uppercase tracking-widest text-slate-400 print:text-slate-500 border-b border-slate-850 print:border-slate-200 pb-2 mb-3">Ending Balances</h4>
+                              <div className="space-y-2.5">
+                                <div className="flex justify-between text-sm">
+                                  <span className="text-slate-400 print:text-slate-600">Ending Paid-in Capital</span>
+                                  <span className="font-semibold text-slate-200 print:text-black">{formatCurrency(statement.ending?.paidInCapital || 0, activeCompany?.currency || 'GHS')}</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                  <span className="text-slate-400 print:text-slate-600">Ending Retained Earnings</span>
+                                  <span className="font-semibold text-slate-200 print:text-black">{formatCurrency(statement.ending?.retainedEarnings || 0, activeCompany?.currency || 'GHS')}</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Total Equity Summary */}
+                            <div className="bg-slate-900/60 border border-slate-800 print:border-slate-300 p-4 rounded-xl print:bg-slate-50 flex justify-between items-center">
+                              <span className="text-sm font-extrabold uppercase text-slate-300 print:text-black tracking-wide">Total Ending Shareholders' Equity</span>
+                              <span className="text-lg font-black text-emerald-400 print:text-emerald-700">
+                                {formatCurrency(statement.ending?.totalEquity || 0, activeCompany?.currency || 'GHS')}
+                              </span>
                             </div>
                           </div>
                         )}

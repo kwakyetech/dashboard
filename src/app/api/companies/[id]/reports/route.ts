@@ -235,6 +235,86 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
           endingCash
         }
       };
+    } else if (type === 'shareholders_equity') {
+      // Period transactions
+      const periodTransactions = await prisma.transaction.findMany({
+        where: {
+          companyId,
+          date: {
+            gte: startDateTime,
+            lte: endDateTime,
+          },
+        },
+      });
+
+      // Prior transactions to compute beginning retained earnings
+      const priorTransactions = await prisma.transaction.findMany({
+        where: {
+          companyId,
+          date: { lt: startDateTime },
+        },
+      });
+
+      let priorIncome = 0;
+      let priorExpense = 0;
+
+      priorTransactions.forEach((t) => {
+        const amount = Number(t.amount);
+        if (t.type === 'income') {
+          priorIncome += amount;
+        } else if (t.type === 'expense') {
+          priorExpense += amount;
+        }
+      });
+
+      const beginningRetainedEarnings = priorIncome - priorExpense;
+      const beginningPaidInCapital = 50000;
+
+      let netIncome = 0;
+      let periodIncome = 0;
+      let periodExpense = 0;
+      let contributions = 0;
+      let distributions = 0;
+
+      periodTransactions.forEach((t) => {
+        const amount = Number(t.amount);
+        if (t.type === 'income') {
+          periodIncome += amount;
+        } else if (t.type === 'expense') {
+          periodExpense += amount;
+        } else if (t.type === 'transfer') {
+          if (amount > 0) {
+            contributions += amount;
+          } else {
+            distributions += Math.abs(amount);
+          }
+        }
+      });
+
+      netIncome = periodIncome - periodExpense;
+      const endingPaidInCapital = beginningPaidInCapital + contributions;
+      const endingRetainedEarnings = beginningRetainedEarnings + netIncome - distributions;
+      const endingTotalEquity = endingPaidInCapital + endingRetainedEarnings;
+
+      aggregatedData = {
+        periodStart: startDate,
+        periodEnd: endDate,
+        beginningBalances: {
+          paidInCapital: beginningPaidInCapital,
+          retainedEarnings: beginningRetainedEarnings,
+          totalEquity: beginningPaidInCapital + beginningRetainedEarnings
+        },
+        changes: {
+          netIncome,
+          contributions,
+          distributions
+        },
+        endingBalances: {
+          paidInCapital: endingPaidInCapital,
+          retainedEarnings: endingRetainedEarnings,
+          totalEquity: endingTotalEquity
+        }
+      };
     } else {
       // Default: Income Statement
       const transactions = await prisma.transaction.findMany({

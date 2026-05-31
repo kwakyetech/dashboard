@@ -214,6 +214,41 @@ Format as JSON:
 }
 
 Only respond with valid JSON.`;
+  } else if (type === 'shareholders_equity') {
+    prompt = `You are a professional financial analyst. Generate a professional Statement of Shareholders' Equity for ${companyName} for the period from ${startDateStr} to ${endDateStr}.
+  
+Use the following transaction aggregates and equity account balances:
+${JSON.stringify(aggregatedData, null, 2)}
+
+Generate:
+1. A formatted Statement of Shareholders' Equity (JSON format with sections for beginning balances, changes during the period [Net Income, Contributions, Distributions], and ending balances for paid-in capital, retained earnings, and total equity)
+2. A 3-paragraph executive summary highlighting changes in equity, contributions, dividend payouts (if any), and net earnings retention
+3. 3-5 key insights/observations about the company's equity growth and capital structure
+
+Format as JSON:
+{
+  "statement": {
+    "beginning": {
+      "paidInCapital": number,
+      "retainedEarnings": number,
+      "totalEquity": number
+    },
+    "changes": {
+      "netIncome": number,
+      "contributions": number,
+      "distributions": number
+    },
+    "ending": {
+      "paidInCapital": number,
+      "retainedEarnings": number,
+      "totalEquity": number
+    }
+  },
+  "summary": "Executive summary text",
+  "insights": ["insight 1", "insight 2", ...]
+}
+
+Only respond with valid JSON.`;
   } else {
     prompt = `You are a professional financial analyst. Generate a professional income statement for ${companyName} for the period ${startDateStr} to ${endDateStr}.
 
@@ -298,6 +333,36 @@ Only respond with valid JSON.`;
         `Core operations are cash-flow positive, yielding GH₵${operating.netOperating.toLocaleString()} of operating cash flow.`,
         `Capital expenditures of GH₵${Math.abs(investing.netInvesting).toLocaleString()} represent cash reinvestment in business tools.`,
         `Ending cash balance of GH₵${totals.endingCash.toLocaleString()} provides a healthy cash cushion for ongoing commitments.`
+      ];
+
+      return { statement, summary, insights };
+    }
+
+    if (type === 'shareholders_equity') {
+      const beginning = {
+        paidInCapital: Number(aggregatedData.beginningBalances.paidInCapital),
+        retainedEarnings: Number(aggregatedData.beginningBalances.retainedEarnings),
+        totalEquity: Number(aggregatedData.beginningBalances.totalEquity)
+      };
+      const changes = {
+        netIncome: Number(aggregatedData.changes.netIncome),
+        contributions: Number(aggregatedData.changes.contributions),
+        distributions: Number(aggregatedData.changes.distributions)
+      };
+      const ending = {
+        paidInCapital: Number(aggregatedData.endingBalances.paidInCapital),
+        retainedEarnings: Number(aggregatedData.endingBalances.retainedEarnings),
+        totalEquity: Number(aggregatedData.endingBalances.totalEquity)
+      };
+
+      const statement = { beginning, changes, ending };
+
+      const summary = `Statement of Shareholders' Equity for ${companyName}: During the period from ${startDateStr} to ${endDateStr}, the company's total equity grew to GH₵${ending.totalEquity.toLocaleString()}, starting from a beginning equity of GH₵${beginning.totalEquity.toLocaleString()}.\n\nThis increase was driven by a net income of GH₵${changes.netIncome.toLocaleString()} for the period, combined with new capital contributions of GH₵${changes.contributions.toLocaleString()}. Total distributions or dividends paid out to shareholders amounted to GH₵${changes.distributions.toLocaleString()}.\n\nOverall, the net additions to retained earnings have significantly enhanced the firm's capital reserves, confirming stable self-funding capabilities and positive financial health. The current capital structure provides a solid foundation for future operational scaling.`;
+
+      const insights = [
+        `Retained earnings increased by GH₵${(changes.netIncome - changes.distributions).toLocaleString()} during the period, reflecting strong earnings retention.`,
+        `Capital contributions of GH₵${changes.contributions.toLocaleString()} show active stakeholder reinvestment and commitment.`,
+        `Ending paid-in capital of GH₵${ending.paidInCapital.toLocaleString()} represents the permanent funding base of the business.`
       ];
 
       return { statement, summary, insights };
@@ -414,6 +479,36 @@ Only respond with valid JSON.`;
         `Capital expenditures of GH₵${Math.abs(investing.netInvesting).toLocaleString()} represent cash reinvestment in business tools.`,
         `Ending cash balance of GH₵${totals.endingCash.toLocaleString()} provides a healthy cash cushion for ongoing commitments.`
       ];
+      return { statement, summary, insights };
+    }
+
+    if (type === 'shareholders_equity') {
+      const beginning = {
+        paidInCapital: Number(aggregatedData.beginningBalances.paidInCapital),
+        retainedEarnings: Number(aggregatedData.beginningBalances.retainedEarnings),
+        totalEquity: Number(aggregatedData.beginningBalances.totalEquity)
+      };
+      const changes = {
+        netIncome: Number(aggregatedData.changes.netIncome),
+        contributions: Number(aggregatedData.changes.contributions),
+        distributions: Number(aggregatedData.changes.distributions)
+      };
+      const ending = {
+        paidInCapital: Number(aggregatedData.endingBalances.paidInCapital),
+        retainedEarnings: Number(aggregatedData.endingBalances.retainedEarnings),
+        totalEquity: Number(aggregatedData.endingBalances.totalEquity)
+      };
+
+      const statement = { beginning, changes, ending };
+
+      const summary = `Statement of Shareholders' Equity for ${companyName}: During the period from ${startDateStr} to ${endDateStr}, the company's total equity grew to GH₵${ending.totalEquity.toLocaleString()}, starting from a beginning equity of GH₵${beginning.totalEquity.toLocaleString()}.\n\nThis increase was driven by a net income of GH₵${changes.netIncome.toLocaleString()} for the period, combined with new capital contributions of GH₵${changes.contributions.toLocaleString()}. Total distributions or dividends paid out to shareholders amounted to GH₵${changes.distributions.toLocaleString()}.\n\nOverall, the net additions to retained earnings have significantly enhanced the firm's capital reserves, confirming stable self-funding capabilities and positive financial health. The current capital structure provides a solid foundation for future operational scaling.`;
+
+      const insights = [
+        `Retained earnings increased by GH₵${(changes.netIncome - changes.distributions).toLocaleString()} during the period, reflecting strong earnings retention.`,
+        `Capital contributions of GH₵${changes.contributions.toLocaleString()} show active stakeholder reinvestment and commitment.`,
+        `Ending paid-in capital of GH₵${ending.paidInCapital.toLocaleString()} represents the permanent funding base of the business.`
+      ];
+
       return { statement, summary, insights };
     }
 
